@@ -22,6 +22,7 @@ export default function App() {
   const [page, setPage] = useState("dashboard");
   const [dark, setDark] = useState(false);
   const [role, setRole] = useState("viewer");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
@@ -137,6 +138,32 @@ export default function App() {
       ? "bg-gray-900 text-white min-h-screen flex transition-all duration-300" 
       : "bg-gradient-to-br from-gray-100 to-gray-200 text-gray-900 min-h-screen flex transition-all duration-300"}>
 
+      {/* MOBILE MENU */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden" onClick={() => setMobileMenuOpen(false)}>
+          <div className="w-64 bg-gradient-to-b from-blue-600 to-purple-600 text-white p-6 h-full">
+            <h2 className="text-2xl font-bold mb-8 flex items-center gap-2">💰 Finance</h2>
+            {[
+              {name:"dashboard", icon:"📊"},
+              {name:"transactions", icon:"💳"},
+              {name:"insights", icon:"📈"}
+            ].map(item=>(
+              <button
+                key={item.name}
+                onClick={()=>{setPage(item.name); setMobileMenuOpen(false);}}
+                className={`flex items-center gap-2 w-full px-4 py-2 rounded-lg mb-3 transition ${
+                  page===item.name
+                    ? "bg-white text-blue-600 font-semibold shadow"
+                    : "hover:bg-white/20"
+                }`}
+              >
+                {item.icon} {item.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* SIDEBAR */}
       <div className="w-64 bg-gradient-to-b from-blue-600 to-purple-600 text-white p-6 hidden md:block">
         <h2 className="text-2xl font-bold mb-8 flex items-center gap-2">💰 Finance</h2>
@@ -161,18 +188,21 @@ export default function App() {
       </div>
 
       {/* MAIN */}
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-4 md:p-6">
 
         {/* HEADER */}
-        <div className="flex justify-between mb-6 items-center">
-          <h1 className="text-3xl font-bold">Finance Dashboard</h1>
+        <div className="flex flex-col md:flex-row justify-between mb-4 md:mb-6 items-start md:items-center gap-4 md:gap-0">
+          <div className="flex items-center gap-4">
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden text-2xl">☰</button>
+            <h1 className="text-2xl md:text-3xl font-bold">Finance Dashboard</h1>
+          </div>
 
-          <div className="flex gap-3 items-center">
-            <button onClick={downloadCSV} className={btn}>CSV</button>
-            <button onClick={downloadJSON} className={btn}>JSON</button>
-            <button onClick={()=>setDark(!dark)} className={btn}>🌙</button>
+          <div className="flex flex-wrap gap-3 items-center">
+            <button onClick={downloadCSV} className={`${btn} w-full sm:w-auto`}>CSV</button>
+            <button onClick={downloadJSON} className={`${btn} w-full sm:w-auto`}>JSON</button>
+            <button onClick={()=>setDark(!dark)} className={`${btn} w-full sm:w-auto`}>🌙</button>
 
-            <select onChange={(e)=>setRole(e.target.value)} className={inputStyle}>
+            <select onChange={(e)=>setRole(e.target.value)} className={`${inputStyle} w-full sm:w-auto`}>
               <option value="viewer">Viewer</option>
               <option value="admin">Admin</option>
             </select>
@@ -182,13 +212,13 @@ export default function App() {
         {/* DASHBOARD */}
         {page==="dashboard" && (
           <>
-            <div className="grid md:grid-cols-3 gap-6 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-6">
               <Card title="Balance" value={balance}/>
               <Card title="Income" value={income}/>
               <Card title="Expense" value={expense}/>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <Glass title="Trend">
                 <ResponsiveContainer width="100%" height={250}>
                   <LineChart data={transactions}>
@@ -226,10 +256,10 @@ export default function App() {
         {/* TRANSACTIONS */}
         {page==="transactions" && (
           <>
-            <div className="flex gap-3 mb-6 items-center">
+            <div className="flex flex-col sm:flex-row gap-3 mb-4 md:mb-6 items-stretch sm:items-center">
 
   {/* SEARCH BAR */}
-  <div className="relative w-full max-w-md">
+  <div className="relative w-full">
     <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
 
     <input
@@ -243,13 +273,13 @@ export default function App() {
     />
   </div>
 
-              <select onChange={(e)=>setFilter(e.target.value)} className={inputStyle}>
+              <select onChange={(e)=>setFilter(e.target.value)} className={`${inputStyle} w-full sm:w-auto`}>
                 <option value="all">All</option>
                 <option value="income">Income</option>
                 <option value="expense">Expense</option>
               </select>
 
-              <select onChange={(e)=>setSort(e.target.value)} className={inputStyle}>
+              <select onChange={(e)=>setSort(e.target.value)} className={`${inputStyle} w-full sm:w-auto`}>
                 <option value="none">Sort</option>
                 <option value="asc">Low→High</option>
                 <option value="desc">High→Low</option>
@@ -259,7 +289,7 @@ export default function App() {
             <div className="flex flex-col gap-6">
             {role==="admin" && (
               <Glass title="Add / Edit Transaction">
-                <div className="grid md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                   <input type="date" className={inputStyle}
                     value={form.date}
                     onChange={(e)=>setForm({...form,date:e.target.value})}
@@ -288,26 +318,27 @@ export default function App() {
               )}
 
               <Glass title="Transactions">
-              <table className="w-full text-gray-900 dark:text-white">
+              <div className="overflow-x-auto">
+              <table className="w-full text-sm md:text-base text-gray-900 dark:text-white">
                 <thead className="text-gray-700 dark:text-gray-300">
                   <tr>
-                    <th>Date</th><th>Amount</th><th>Category</th><th>Type</th>
-                    {role==="admin" && <th>Action</th>}
+                    <th className="text-left">Date</th><th className="text-left">Amount</th><th className="text-left">Category</th><th className="text-left">Type</th>
+                    {role==="admin" && <th className="text-left">Action</th>}
                   </tr>
                 </thead>
 
                 <tbody>
                   {filtered.map(t=>(
                     <tr key={t.id} className="hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                      <td>{t.date}</td>
-                      <td>₹{t.amount}</td>
-                      <td>{t.category}</td>
-                      <td>{t.type}</td>
+                      <td className="py-2">{t.date}</td>
+                      <td className="py-2">₹{t.amount}</td>
+                      <td className="py-2">{t.category}</td>
+                      <td className="py-2">{t.type}</td>
 
                       {role==="admin" && (
-                        <td>
-                          <button onClick={()=>editTransaction(t)} className="text-blue-500 mr-2 hover:underline">Edit</button>
-                          <button onClick={()=>setTransactions(transactions.filter(x=>x.id!==t.id))} className="text-red-500 hover:underline">
+                        <td className="py-2">
+                          <button onClick={()=>editTransaction(t)} className="text-blue-500 mr-2 hover:underline text-sm">Edit</button>
+                          <button onClick={()=>setTransactions(transactions.filter(x=>x.id!==t.id))} className="text-red-500 hover:underline text-sm">
                             Delete
                           </button>
                         </td>
@@ -316,6 +347,7 @@ export default function App() {
                   ))}
                 </tbody>
               </table>
+              </div>
               </Glass>
             </div>
           </>
@@ -349,15 +381,15 @@ const Card = ({ title, value }) => {
   };
 
   return (
-    <div className={`p-6 rounded-xl shadow-lg text-white bg-gradient-to-r ${styles[title]} hover:scale-105 transition`}>
+    <div className={`p-4 md:p-6 rounded-xl shadow-lg text-white bg-gradient-to-r ${styles[title]} hover:scale-105 transition`}>
       <h3 className="text-sm opacity-80">{title}</h3>
-      <p className="text-3xl font-bold mt-2">₹{value}</p>
+      <p className="text-2xl md:text-3xl font-bold mt-2">₹{value}</p>
     </div>
   );
 };
 
 const Glass = ({ title, children }) => (
-  <div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-4 rounded-xl shadow-lg transition hover:shadow-xl">
+  <div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-4 md:p-6 rounded-xl shadow-lg transition hover:shadow-xl">
     <h2 className="mb-3 font-semibold text-lg">{title}</h2>
     {children}
   </div>
